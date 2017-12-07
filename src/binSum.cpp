@@ -5,24 +5,6 @@
 using namespace Rcpp;
 
 //#-------------------------------------------------------------------------#
-//' Function that computes a mean value
-//'
-//' @param x NumericVector
-//' @keywords internal
-// [[Rcpp::export]]
-double Mean_c(NumericVector x){
-  //remove NA from the vector
-  NumericVector x2 = na_omit(x);
-  
-  int sz2 = x2.size() ;// get the length of the input vector after removing NAs
-
-  //return NA when the vector consists of NAs (after removing NAs the vector size is equal to 0)
-  if(sz2 == 0){
-    return NA_REAL;
-  }
-  
-  return std::accumulate(x2.begin(), x2.end(), 0.0) / sz2 ; //calculate the mean value of the vector
-}
 
 //' Function that computes a mean value for each bin
 //'
@@ -34,6 +16,8 @@ NumericVector binMean(NumericVector x,int n) {
   
   int sz = x.size() ;// get the length of the input vector
   NumericVector res(n);// create the output vector
+  NumericVector::iterator it;
+  NumericVector poz;
   
   // if the bins number larger than vector size return zeros 
   if(sz < n){
@@ -62,11 +46,24 @@ NumericVector binMean(NumericVector x,int n) {
     prev = prev + w_size; // update the begining index of the slice
     
     NumericVector vec(&x[prev2], &x[end2]);
-    res[i] = Mean_c(vec);
+    NumericVector x2 = na_omit(vec);
+    
+    int sz2 = x2.size() ;// get the length of the bin vector after removing NAs
+    
+    // return NA when the vector consists of NAs (after removing NAs the vector size is equal to 0)
+    if(sz2 == 0){ 
+      res[i] = NA_REAL;
+      
+      // compute the mean value for a bin
+    }else{ 
+      res[i] = std::accumulate(x2.begin(), x2.end(), 0.0) / sz2 ; //calculate the mean value of the vector
+    }
+    
   }
   
   return res;
 }
+
 
 //#-------------------------------------------------------------------------#
 //' Function that computes a median value
@@ -75,24 +72,16 @@ NumericVector binMean(NumericVector x,int n) {
 //' @keywords internal
 // [[Rcpp::export]]
 double Median_c(NumericVector x){
-  //remove NA from the vector
-  NumericVector x2 = na_omit(x);
-  
-  int sz2 = x2.size() ;// get the length of the input vector after removing NAs
-  
-  //return NA when the vector consists of NAs (after removing NAs the vector size is equal to 0)
-  if(sz2 == 0){
-    return NA_REAL;
-  }
-  
-  if(sz2%2 == 0){
-    std::sort(x2.begin(), x2.end());
-    return (x2[(sz2/2)-1] + x2[sz2/2] ) / 2; 
+  int dint = x.size();
+  double res;
+  if(dint%2 == 0){
+    std::sort(x.begin(), x.end());
+    res = (x[(dint/2)-1] + x[dint/2] ) / 2; 
   }else{
-    std::nth_element(x2.begin(), x2.begin()+sz2/2, x2.end());
-    return x2[sz2/2];
+    std::nth_element(x.begin(), x.begin()+dint/2, x.end());
+    res = x[dint/2];
   }
-  
+  return res;
 }
 
 //' Function that computes a median value for each bin
@@ -132,33 +121,22 @@ NumericVector binMedian(NumericVector x, int n) {
     prev = prev + w_size; // update the begining index of the slice
     
     NumericVector vec(&x[prev2], &x[end2]);
-    res[i] = Median_c(vec);
+    NumericVector x2 = na_omit(vec);
+    
+    int sz2 = x2.size() ;// get the length of the input vector after removing NAs
+    
+    // return NA when the vector consists of NAs (after removing NAs the vector size is equal to 0)
+    if(sz2 == 0){ 
+      res[i] = NA_REAL;
+      
+      // compute the median value for a bin
+    }else{ 
+      res[i] = Median_c(x2); //calculate the median value of the vector
+    }
     
   }
   
   return res;
-}
-
-
-
-//#-------------------------------------------------------------------------#
-//' Function that computes a max value
-//'
-//' @param x NumericVector
-//' @keywords internal
-// [[Rcpp::export]]
-double Max_c(NumericVector x){
-  //remove NA from the vector
-  NumericVector x2 = na_omit(x);
-  
-  int sz2 = x2.size() ;// get the length of the input vector after removing NAs
-  
-  //return NA when the vector consists of NAs (after removing NAs the vector size is equal to 0)
-  if(sz2 == 0){
-    return NA_REAL;
-  }
-  
-  return *std::max_element(x2.begin(), x2.end()); //calculate the max value of the vector
 }
 
 
@@ -198,31 +176,22 @@ NumericVector binMax(NumericVector x,int n) {
     prev = prev + w_size; // update the begining index of the slice
     
     NumericVector vec(&x[prev2], &x[end2]);
-    res[i] = Max_c(vec);
+    NumericVector x2 = na_omit(vec);
+    
+    int sz2 = x2.size() ;// get the length of the bin vector after removing NAs
+    
+    // return NA when the vector consists of NAs (after removing NAs the vector size is equal to 0)
+    if(sz2 == 0){ 
+      res[i] = NA_REAL;
+      
+      // compute the max value for a bin
+    }else{ 
+      res[i] = *std::max_element(x2.begin(), x2.end()); //calculate the max value of the vector
+    }
+    
   }
   
   return res;
-}
-
-
-//#-------------------------------------------------------------------------#
-//' Function that computes a min value
-//'
-//' @param x NumericVector
-//' @keywords internal
-// [[Rcpp::export]]
-double Min_c(NumericVector x){
-  //remove NA from the vector
-  NumericVector x2 = na_omit(x);
-  
-  int sz2 = x2.size() ;// get the length of the input vector after removing NAs
-  
-  //return NA when the vector consists of NAs (after removing NAs the vector size is equal to 0)
-  if(sz2 == 0){
-    return NA_REAL;
-  }
-  
-  return *std::min_element(x2.begin(), x2.end()); //calculate the min value of the vector
 }
 
 
@@ -260,31 +229,24 @@ NumericVector binMin(NumericVector x,int n) {
       end2 = sz;
     }
     prev = prev + w_size; // update the begining index of the slice
+    
     NumericVector vec(&x[prev2], &x[end2]);
-    res[i] = Min_c(vec);
+    NumericVector x2 = na_omit(vec);
+    
+    int sz2 = x2.size() ;// get the length of the bin vector after removing NAs
+    
+    // return NA when the vector consists of NAs (after removing NAs the vector size is equal to 0)
+    if(sz2 == 0){ 
+      res[i] = NA_REAL;
+      
+      // compute the max value for a bin
+    }else{ 
+      res[i] = *std::min_element(x2.begin(), x2.end()); //calculate the min value of the vector
+    }
+    
   }
   
   return res;
-}
-
-
-//#-------------------------------------------------------------------------#
-//' Function that computes a sum value
-//'
-//' @param x NumericVector
-//' @keywords internal
-// [[Rcpp::export]]
-double Sum_c(NumericVector x){
-  //remove NA from the vector
-  NumericVector x2 = na_omit(x);
-  
-  int sz2 = x2.size() ;// get the length of the input vector after removing NAs
-  
-  //return NA when the vector consists of NAs (after removing NAs the vector size is equal to 0)
-  if(sz2 == 0){
-    return NA_REAL;
-  }
-  return std::accumulate(x2.begin(), x2.end(), 0.0); //calculate the sum value of the vector
 }
 
 //' Function that computes a sum of values in a bin
@@ -323,7 +285,19 @@ NumericVector binSum(NumericVector x,int n) {
     prev = prev + w_size; // update the begining index of the slice
     
     NumericVector vec(&x[prev2], &x[end2]);
-    res[i] = Sum_c(vec);
+    NumericVector x2 = na_omit(vec);
+    
+    int sz2 = x2.size() ;// get the length of the bin vector after removing NAs
+    
+    // return NA when the vector consists of NAs (after removing NAs the vector size is equal to 0)
+    if(sz2 == 0){ 
+      res[i] = NA_REAL;
+      
+      // compute the max value for a bin
+    }else{ 
+      res[i] = std::accumulate(x2.begin(), x2.end(), 0.0); //calculate the sum value of the vector
+    }
+    
   }
   
   return res;
