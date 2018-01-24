@@ -360,7 +360,8 @@ setMethod("ScoreMatrixBin",signature("RleList","GRangesList"),
             if(!bin.op %in% functs)
               stop(paste(c('Supported binning functions are', functs,'\n')))
             if(bin.op=="min")
-              sum.bins=unlist(viewMins(my.vList,na.rm=TRUE), use.names=FALSE)     
+              sum.bins=unlist(lapply(viewApply(my.vList,as.vector,simplify=FALSE), 
+                                     function(x) (listSliceMin(x,1))), use.names=FALSE)     
             if(bin.op=="max")
               sum.bins=unlist(viewMaxs(my.vList,na.rm=TRUE), use.names=FALSE)
             if(bin.op=="mean")
