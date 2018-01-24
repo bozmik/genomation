@@ -363,7 +363,8 @@ setMethod("ScoreMatrixBin",signature("RleList","GRangesList"),
               sum.bins=unlist(lapply(viewApply(my.vList,as.vector,simplify=FALSE), 
                                      function(x) (listSliceMin(x,1))), use.names=FALSE)     
             if(bin.op=="max")
-              sum.bins=unlist(viewMaxs(my.vList,na.rm=TRUE), use.names=FALSE)
+              sum.bins=unlist(lapply(viewApply(my.vList,as.vector,simplify=FALSE), 
+                                     function(x) (listSliceMax(x,1))), use.names=FALSE)
             if(bin.op=="mean")
               sum.bins=unlist(viewMeans(my.vList,na.rm=TRUE), use.names=FALSE)
             if(bin.op=="median")
