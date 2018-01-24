@@ -356,21 +356,25 @@ setMethod("ScoreMatrixBin",signature("RleList","GRangesList"),
                        Views(rle[[seqname]], bins[[seqname]])))
             # Copied from genomation:::summarizeViewsRle
             # Calculate min/mean/max/median in each bin
-            functs = c("min",'mean','max','median')
+            functs = c("min",'mean','max','median','sum')
             if(!bin.op %in% functs)
               stop(paste(c('Supported binning functions are', functs,'\n')))
-            if(bin.op=="min")
-              sum.bins=unlist(lapply(viewApply(my.vList,as.vector,simplify=FALSE), 
-                                     function(x) (listSliceMin(x,1))), use.names=FALSE)     
-            if(bin.op=="max")
-              sum.bins=unlist(lapply(viewApply(my.vList,as.vector,simplify=FALSE), 
-                                     function(x) (listSliceMax(x,1))), use.names=FALSE)
-            if(bin.op=="mean")
+            if(bin.op=="mean"){
               sum.bins=unlist(lapply(viewApply(my.vList,as.vector,simplify=FALSE), 
                                      function(x) (listSliceMean(x,1))), use.names=FALSE)
-            if(bin.op=="median")
+            }else if(bin.op=="min"){
+              sum.bins=unlist(lapply(viewApply(my.vList,as.vector,simplify=FALSE), 
+                                     function(x) (listSliceMin(x,1))), use.names=FALSE)     
+            }else if(bin.op=="max"){
+              sum.bins=unlist(lapply(viewApply(my.vList,as.vector,simplify=FALSE), 
+                                     function(x) (listSliceMax(x,1))), use.names=FALSE)
+            }else if(bin.op=="median"){
               sum.bins=unlist(lapply(viewApply(my.vList,as.vector,simplify=FALSE), 
                                      function(x) (listSliceMedian(x,1))), use.names=FALSE)
+            }else if(bin.op=="sum"){
+              sum.bins=unlist(lapply(viewApply(my.vList,as.vector,simplify=FALSE), 
+                                     function(x) (listSliceSum(x,1))), use.names=FALSE)
+            }
             
             mat = matrix( sum.bins, ncol=bin.num, byrow=TRUE )
             mat[is.nan(mat)] = NA
