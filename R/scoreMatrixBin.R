@@ -369,9 +369,8 @@ setMethod("ScoreMatrixBin",signature("RleList","GRangesList"),
               sum.bins=unlist(lapply(viewApply(my.vList,as.vector,simplify=FALSE), 
                                      function(x) (listSliceMean(x,1))), use.names=FALSE)
             if(bin.op=="median")
-              sum.bins=unlist(viewApply(my.vList, 
-                                        function(x) median(x, na.rm=TRUE), 
-                                        simplify = TRUE), use.names=FALSE)
+              sum.bins=unlist(lapply(viewApply(my.vList,as.vector,simplify=FALSE), 
+                                     function(x) (listSliceMedian(x,1))), use.names=FALSE)
             
             mat = matrix( sum.bins, ncol=bin.num, byrow=TRUE )
             mat[is.nan(mat)] = NA
